@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+  <meta charset="UTF-8" />
+  <title>Yakada Wadapata - UNITED ENGINEERING</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* ===== BASE STYLES ===== */
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f0f0f;
+      overflow-x: hidden;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* ===== BACKDROP & ATMOSPHERIC EFFECTS ===== */
+    #animated-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: radial-gradient(circle at 20% 80%, #1e40af 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, #2563eb 0%, transparent 50%),
+                  radial-gradient(circle at 40% 40%, #3b82f6 0%, transparent 50%),
+                  linear-gradient(135deg, #1a1a1a 0%, #001a2e 25%, #0f0f0f 50%, #001122 75%, #0f0f0f 100%);
+      animation: backdropPulse 20s ease-in-out infinite;
+    }
+
+    @keyframes backdropPulse {
+      0%, 100% { opacity: 0.3; filter: brightness(0.8) blur(50px); }
+      50% { opacity: 0.5; filter: brightness(1.2) blur(30px); }
+    }
+
+    .sparks {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: 
+        radial-gradient(2px 2px at 20px 30px, #AE8625, transparent),
+        radial-gradient(2px 2px at 40px 70px, #AE8625, transparent),
+        radial-gradient(1px 1px at 90px 40px, #AE8625, transparent),
+        radial-gradient(1px 1px at 130px 80px, #AE8625, transparent),
+        radial-gradient(2px 2px at 160px 30px, #AE8625, transparent);
+      background-repeat: repeat;
+      background-size: 100px 100px;
+      animation: sparkle 5000s linear infinite;
+      opacity: 0.6;
+    }
+
+    @keyframes sparkle {
+      0% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+      100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+    }
+
+    .metal-texture {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      background: 
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 2px,
+          rgba(59, 130, 246, 0.03) 2px,
+          rgba(59, 130, 246, 0.03) 4px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(30, 64, 175, 0.02) 2px,
+          rgba(30, 64, 175, 0.02) 4px
+        );
+      pointer-events: none;
+    }
+
+    #particles-js {
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+    }
+
+    #content {
+      position: relative;
+      z-index: 4;
+    }
+
+    /* ===== NAVIGATION STYLES ===== */
+    nav {
+      background: linear-gradient(135deg, #1a1a1a 0%, #001a2e 50%, #1a1a1a 100%);
+      backdrop-filter: blur(20px);
+      border-bottom: 2px solid #3b82f6;
+      box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      color: #fff;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      border-radius: 0 0 20px 20px;
+      position: relative;
+    }
+
+    nav::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(45deg, transparent 30%, rgba(59, 130, 246, 0.1) 50%, transparent 70%);
+      animation: metalShine 8s linear infinite;
+      border-radius: 0 0 20px 20px;
+    }
+
+    @keyframes metalShine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    nav a {
+      color: #AE8625,;
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      z-index: 1;
+    }
+
+    nav a:hover {
+      color: #AE8625,;
+      background: rgba(59, 130, 246, 0.1);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+      transform: translateY(-2px);
+    }
+
+    nav a i {
+      font-size: 1.1em;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      z-index: 1;
+      position: relative;
+    }
+
+    .logo-container img {
+      height: 64px;
+      border-radius: 10px;
+      border: 2px solid #3b82f6;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+
+    .logo-text {
+      color: #3b82f6;
+      font-weight: bold;
+      font-size: 2.4em;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+    }
+
+    /* ===== SECTION TRANSITIONS & ANIMATIONS ===== */
+    .section {
+      opacity: 0;
+      transform: translateY(50px) scale(0.95);
+      transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+      will-change: transform, opacity;
+    }
+
+    .section.active {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .section.fade-out {
+      opacity: 0;
+      transform: translateY(-30px) scale(1.05);
+      transition: all 0.5s ease-out;
+    }
+
+    .loading {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    /* ===== SECTION BASE STYLES ===== */
+    .section {
+      padding: 40px 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+      background: rgba(26, 26, 26, 0.3);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      margin-top: 30px;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .section h1 {
+      color: #3b82f6;
+      font-size: 3em;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 8px rgba(59, 130, 246, 0.5);
+      position: relative;
+      display: inline-block;
+    }
+
+    .section h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+      border-radius: 2px;
+    }
+
+    .section h2 {
+      color: #60a5fa;
+      font-size: 1.8em;
+      margin: 20px 0;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .section h3 {
+      color: #93c5fd;
+      font-size: 1.3em;
+      font-weight: 400;
+      margin-bottom: 30px;
+    }
+
+    /* ===== GALLERY STYLES ===== */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+      margin-top: 30px;
+      padding: 20px;
+    }
+
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+      padding: 8px;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .gallery-item:hover {
+      transform: translateY(-10px) scale(1.02);
+      border-color: #3b82f6;
+      box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+      transition: all 0.4s ease;
+      filter: brightness(0.9) contrast(1.1);
+    }
+
+    .gallery-item:hover img {
+      filter: brightness(1.1) contrast(1.2);
+    }
+
+    /* ===== IMAGE MODAL STYLES ===== */
+    .image-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+
+    .image-modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: modalFadeIn 0.3s ease;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      position: relative;
+      max-width: 100%;
+      max-height: 100%;
+      animation: modalSlideIn 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    @keyframes modalSlideIn {
+      from { 
+        opacity: 0; 
+        transform: scale(0.7) translateY(50px); 
+      }
+      to { 
+        opacity: 1; 
+        transform: scale(1) translateY(0); 
+      }
+    }
+
+    .modal-image {
+      width: 100%;
+      height: auto;
+      border-radius: 15px;
+      border: 3px solid #3b82f6;
+      box-shadow: 0 25px 50px rgba(59, 130, 246, 0.4);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 40px;
+      height: 40px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+
+    .modal-close:hover {
+      background: #1e40af;
+      transform: scale(1.1);
+    }
+
+    /* ===== ABOUT SECTION STYLES ===== */
+    #about em {
+      font-size: 1.2em;
+      line-height: 1.8;
+      color: #d1d5db;
+      background: rgba(59, 130, 246, 0.05);
+      padding: 30px;
+      border-radius: 15px;
+      border-left: 4px solid #3b82f6;
+      text-align: left;
+      display: block;
+      margin: 20px 0;
+      font-style: normal;
+    }
+
+    /* ===== CONTACT SECTION STYLES ===== */
+    #contact p {
+      font-size: 1.3em;
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(59, 130, 246, 0.1);
+      border-radius: 10px;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    #contact strong {
+      color: #3b82f6;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ===== RESPONSIVE DESIGN ===== */
+    @media (max-width: 768px) {
+      nav {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+      }
+      
+      .logo-text {
+        font-size: 1.8em;
+      }
+      
+      .section h1 {
+        font-size: 2.2em;
+      }
+      
+      .gallery {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+      
+      .modal-close {
+        top: -30px;
+        right: -30px;
+        width: 35px;
+        height: 35px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .section {
+        padding: 20px 15px;
+        margin-top: 15px;
+      }
+      
+      .logo-text {
+        font-size: 1.4em;
+      }
+      
+      .section h1 {
+        font-size: 1.8em;
+      }
+      
+      nav {
+        padding: 15px;
+      }
+      
+      nav a {
+        padding: 8px 12px;
+        font-size: 0.9em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== BACKGROUND LAYERS ===== -->
+  <div id="animated-backdrop"></div>
+  <div class="sparks"></div>
+  <div class="metal-texture"></div>
+  <div id="particles-js"></div>
+  
+  <!-- ===== MAIN CONTENT ===== -->
+  <div id="content">
+    <!-- ===== NAVIGATION ===== -->
+    <nav>
+      <div class="logo-container">
+        <img src="logo.jpeg" alt="Logo" />
+        <span class="logo-text">UNITED ENGINEERING</span>
+      </div>
+      <div style="display: flex; gap: 30px;">
+        <a href="#home" onclick="navigateTo('home')"><i class="fas fa-home"></i> Home</a>
+        <a href="#gallery" onclick="navigateTo('gallery')"><i class="fas fa-image"></i> Gallery</a>
+        <a href="#about" onclick="navigateTo('about')"><i class="fas fa-user"></i> About</a>
+        <a href="#contact" onclick="navigateTo('contact')"><i class="fas fa-envelope"></i> Contact</a>
+      </div>
+    </nav>
+
+    <!-- ===== HOME SECTION ===== -->
+    <section id="home" class="section active">
+      <h1>Welcome to United Engineering!</h1>
+      <h2>Precision Metalwork | Welding | Custom Fabrication</h2>
+      <h3>Delivering reliable metal and welding solutions with expert craftsmanship.</h3>
+    </section>
+
+    <!-- ===== GALLERY SECTION ===== -->
+    <section id="gallery" class="section">
+      <h1>Gallery</h1>
+      <div class="gallery">
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0020.jpg')">
+          <img src="IMG-20250627-WA0020.jpg" alt="Workshop Item 1" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0017.jpg')">
+          <img src="IMG-20250627-WA0017.jpg" alt="Workshop Item 2" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0021.jpg')">
+          <img src="IMG-20250627-WA0016.jpg" alt="Workshop Item 3" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0016.jpg')">
+          <img src="IMG-20250627-WA0015.jpg" alt="Workshop Item 4" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0022.jpg')">
+          <img src="IMG-20250627-WA0019.jpg" alt="Workshop Item 5" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0023.jpg')">
+          <img src="IMG-20250627-WA0022.jpg" alt="Workshop Item 6" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0024.jpg')">
+          <img src="IMG-20250628-WA0001.jpg" alt="Workshop Item 7" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0025.jpg')">
+          <img src="IMG-20250628-WA0002.jpg" alt="Workshop Item 8" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0026.jpg')">
+          <img src="IMG-20250628-WA0003.jpg" alt="Workshop Item 9" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0027.jpg')">
+          <img src="IMG-20250628-WA0004.jpg" alt="Workshop Item 10" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0028.jpg')">
+          <img src="IMG-20250628-WA0005.jpg" alt="Workshop Item 11" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0029.jpg')">
+          <img src="IMG-20250628-WA0006.jpg" alt="Workshop Item 12" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0030.jpg')">
+          <img src="IMG-20250628-WA0007.jpg" alt="Workshop Item 13" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0031.jpg')">
+          <img src="IMG-20250628-WA0008.jpg" alt="Workshop Item 14" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0032.jpg')">
+          <img src="IMG-20250628-WA0009.jpg" alt="Workshop Item 15" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0033.jpg')">
+          <img src="IMG-20250628-WA00010.jpg" alt="Workshop Item 16" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0034.jpg')">
+          <img src="IMG-20250628-WA00011.jpg" alt="Workshop Item 17" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0035.jpg')">
+          <img src="IMG-20250628-WA00012.jpg" alt="Workshop Item 18" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0036.jpg')">
+          <img src="IMG-20250627-WA0036.jpg" alt="Workshop Item 19" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0037.jpg')">
+          <img src="IMG-20250627-WA0037.jpg" alt="Workshop Item 20" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0038.jpg')">
+          <img src="IMG-20250627-WA0038.jpg" alt="Workshop Item 21" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0039.jpg')">
+          <img src="IMG-20250627-WA0039.jpg" alt="Workshop Item 22" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0040.jpg')">
+          <img src="IMG-20250627-WA0040.jpg" alt="Workshop Item 23" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0041.jpg')">
+          <img src="IMG-20250627-WA0041.jpg" alt="Workshop Item 24" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0042.jpg')">
+          <img src="IMG-20250627-WA0042.jpg" alt="Workshop Item 25" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0043.jpg')">
+          <img src="IMG-20250627-WA0043.jpg" alt="Workshop Item 26" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0044.jpg')">
+          <img src="IMG-20250627-WA0044.jpg" alt="Workshop Item 27" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0045.jpg')">
+          <img src="IMG-20250627-WA0045.jpg" alt="Workshop Item 28" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0046.jpg')">
+          <img src="IMG-20250627-WA0046.jpg" alt="Workshop Item 29" />
+        </div>
+        <div class="gallery-item" onclick="openModal('IMG-20250627-WA0047.jpg')">
+          <img src="IMG-20250627-WA0047.jpg" alt="Workshop Item 30" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ABOUT SECTION ===== -->
+    <section id="about" class="section">
+      <h1>About</h1>
+      <em>At United Engineering, we specialize in high-quality iron, aluminum, and metal fabrication work. With years of hands-on experience, our workshop delivers trusted welding, gate & grill manufacturing, custom metal structures, and industrial repairs.
+
+We take pride in combining skilled craftsmanship with durable materials to meet the unique needs of each client. Whether it's a small household job or a large industrial project, we are committed to delivering strong, precise, and lasting results.
+
+Reliable. Skilled. Built to last.  
+That's the United Engineering promise.</em>
+    </section>
+
+    <!-- ===== CONTACT SECTION ===== -->
+    <section id="contact" class="section">
+      <h1>Contact</h1>
+      <p>Phone Number: <strong>011 293 6239 / 072 055 2975</strong></p>
+      <p>Email: <strong>kaveensanthush40@gmail.com</strong></p>
+      <p>Location: <strong>116/1, Elvitigala Mawatha, Colombo-08.</strong></p>
+    </section>
+  </div>
+
+  <!-- ===== IMAGE MODAL ===== -->
+  <div id="imageModal" class="image-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <img id="modalImage" class="modal-image" src="" alt="Workshop Image" />
+    </div>
+  </div>
+
+  <!-- ===== JAVASCRIPT SECTION ===== -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script>
+    // ===== PARTICLES INITIALIZATION =====
+    particlesJS("particles-js", {
+      particles: {
+        number: { value: 60 },
+        color: { value: "#3b82f6" },
+        shape: { 
+          type: "circle",
+          stroke: {
+            width: 1,
+            color: "#60a5fa"
+          }
+        },
+        opacity: { 
+          value: 0.3,
+          random: true,
+          anim: {
+            enable: true,
+            speed: 1,
+            opacity_min: 0.1
+          }
+        },
+        size: { 
+          value: 4,
+          random: true,
+          anim: {
+            enable: true,
+            speed: 2,
+            size_min: 1
+          }
+        },
+        line_linked: {
+          enable: true,
+          distance: 150,
+          color: "#3b82f6",
+          opacity: 0.2,
+          width: 1
+        },
+        move: {
+          enable: true,
+          speed: 2,
+          direction: "none",
+          random: true,
+          straight: false,
+          out_mode: "out",
+          bounce: false,
+          attract: {
+            enable: true,
+            rotateX: 600,
+            rotateY: 1200
+          }
+        }
+      },
+      interactivity: {
+        detect_on: "canvas",
+        events: {
+          onhover: { enable: true, mode: "repulse" },
+          onclick: { enable: true, mode: "push" }
+        },
+        modes: {
+          repulse: { distance: 120, duration: 0.4 },
+          push: { particles_nb: 6 }
+        }
+      },
+      retina_detect: true
+    });
+
+    // ===== NAVIGATION FUNCTIONALITY =====
+    let currentSection = 'home';
+    let isTransitioning = false;
+    function navigateTo(id) {
+      if (isTransitioning || id === currentSection) return;
+      
+      isTransitioning = true;
+      const currentEl = document.getElementById(currentSection);
+      const targetEl = document.getElementById(id);
+      
+      // Add fade-out class to current section
+      currentEl.classList.add('fade-out');
+      currentEl.classList.remove('active');
+      
+      // After fade-out animation, show new section
+      setTimeout(() => {
+        currentEl.style.display = 'none';
+        currentEl.classList.remove('fade-out');
+        
+        targetEl.style.display = 'block';
+        
+        // Trigger reflow and add active class
+        requestAnimationFrame(() => {
+          targetEl.classList.add('active');
+          currentSection = id;
+          isTransitioning = false;
+        });
+      }, 300);
+      
+      // Update URL hash
+      history.pushState(null, null, `#${id}`);
+    }
+
+    // ===== IMAGE MODAL FUNCTIONALITY =====
+    function openModal(imageSrc) {
+      const modal = document.getElementById('imageModal');
+      const modalImage = document.getElementById('modalImage');
+      
+      modalImage.src = imageSrc;
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('imageModal');
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    // ===== EVENT LISTENERS =====
+    // Close modal on background click
+    document.getElementById('imageModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+
+    // Close modal on ESC key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', () => {
+      const hash = window.location.hash.replace('#', '') || 'home';
+      navigateTo(hash);
+    });
+
+    // ===== INITIALIZATION =====
+    window.onload = () => {
+      const hash = window.location.hash.replace('#', '') || 'home';
+      
+      // Hide all sections first
+      document.querySelectorAll('.section').forEach(s => {
+        s.style.display = 'none';
+        s.classList.remove('active');
+      });
+      
+      // Show target section
+      const targetSection = document.getElementById(hash);
+      if (targetSection) {
+        targetSection.style.display = 'block';
+        setTimeout(() => {
+          targetSection.classList.add('active');
+        }, 100);
+        currentSection = hash;
+      }
+    };
+  </script>
+</body>
+</html>
